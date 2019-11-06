@@ -1,0 +1,19 @@
+item {
+    id: 1
+    name: 'baret'
+}
+
+item {
+    id: 2
+    name: 'glass'
+}
+
+item {
+    id: 3
+    name: 'c3'
+}
+
+item {
+    id: 4
+    name: 'headphone'
+}
