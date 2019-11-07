@@ -36,12 +36,12 @@ $ bash ./run.sh
 ~~~~~~~~~~~~~~~~~~~~~
 1. Install Dependencies
 2. Clean Training Data
-3. Generate train and test labels csv
-4. Generate TFRecords
-5. Start Training
-6. Convert Model to TFLite
-7. Change Train Images Path
-8. Change Test Images Path
+3. Run LabelImg by Tzutalin and Create bounding boxes
+4. Generate train and test labels csv
+5. Generate TFRecords
+6. Start Training
+7. Convert Model to TFLite
+8. Change Train Images Path
 9. Change Test Images Path
 10. Quit
 ~~~~~~~~~~~~~~~~~~~~~
