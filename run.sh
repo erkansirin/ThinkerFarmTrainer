@@ -1,18 +1,21 @@
 #!/bin/bash
-# Bash Menu Script Example
+# Author Erkan Sirin erkan@erkansirin.com
 echo "######## ThinkerFarm Trainer ########"
 PS3='Select an option: '
-options=("Install" "Clean Training Data" "Generate train and test labels csv" "Generate TFRecords" "Start Training" "Convert Model to Tflite" "Quit")
+options=("Install" "Clean Training Data" "Run LabelImg by Tzutalin and Create bounding boxes" "Generate train and test labels csv" "Generate TFRecords" "Start Training" "Convert Model to Tflite" "Change Train Images Path" "Change Test Images Path" "Quit")
 echo "~~~~~~~~~~~~~~~~~~~~~"
 echo " M A I N - M E N U"
 echo "~~~~~~~~~~~~~~~~~~~~~"
 echo "1. Install Dependencies"
 echo "2. Clean Training Data"
-echo "3. Generate train and test labels csv"
-echo "4. Generate TFRecords"
-echo "5. Start Training"
-echo "6. Convert Model to TFLite"
-echo "7. Quit"
+echo "3. Run LabelImg by Tzutalin and Create bounding boxes"
+echo "4. Generate train and test labels csv"
+echo "5. Generate TFRecords"
+echo "6. Start Training"
+echo "7. Convert Model to TFLite"
+echo "8. Change Train Images Path"
+echo "9. Change Test Images Path"
+echo "10. Quit"
 echo "~~~~~~~~~~~~~~~~~~~~~"
 select opt in "${options[@]}"
 do
@@ -21,6 +24,32 @@ do
             echo "~~~~~~~~~~~~~~~~~~~~~~~"
             echo "Installing dependencies"
             echo "~~~~~~~~~~~~~~~~~~~~~~~"
+            platform='unknown'
+            unamestr=`uname`
+
+            if [[ "$unamestr" == 'Darwin' ]]; then
+              echo $unamestr
+              git clone https://github.com/tzutalin/labelImg.git
+              cd labelImg
+              pip3 install pyqt5 lxml # Install qt and lxml by pip
+              make qt5py3
+              cd ..
+
+
+
+
+            elif [[ "$unamestr" == 'Linux' ]]; then
+              echo $unamestr
+              git clone https://github.com/tzutalin/labelImg.git
+              cd labelImg
+              sudo apt-get install pyqt5-dev-tools
+              sudo pip3 install -r requirements/requirements-linux-python3.txt
+              make qt5py3
+              cd ..
+
+
+
+            fi
             ;;
         "Clean Training Data")
             echo "~~~~~~~~~~~~~~~~~~~~~"
@@ -32,10 +61,10 @@ do
                 [Yy]* )
                 rm trainer/annotations/train.record
                 rm trainer/annotations/test.record
-                rm trainer/annotations/test_labels.csv
-                rm trainer/annotations/test_images/*
-                rm trainer/annotations/train_images/*
-                rm trainer/annotations/train_labels.csv
+                # rm trainer/annotations/test_labels.csv
+                # rm trainer/annotations/test_images/*
+                # rm trainer/annotations/train_images/*
+                # rm trainer/annotations/train_labels.csv
                 rm trainer/trained_check_points/*
                 rm trainer/converted_model_tflite/*
                 echo "~~~~~~~~~~~~~~~~~~~~~"
@@ -45,6 +74,13 @@ do
                 *) echo "Please answer yes or no.";;
               esac
             done
+            ;;
+
+        "Run LabelImg by Tzutalin and Create bounding boxes")
+            echo "~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "Opening Image Label App"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~"
+            python3 labelImg/labelImg.py
             ;;
 
         "Generate train and test labels csv")
@@ -60,7 +96,9 @@ do
               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
               echo "-- ThinkerFarm Genereting $train_labels Please Wait... --"
               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-              python3 core/tfapi/xml_to_csv.py -i trainer/annotations/train_images -o trainer/annotations/train_labels.csv
+              IFS=$'\r\n' GLOBIGNORE='*' command eval  'XYZ=($(cat core/tfapi/train_image_path))'
+              echo "${XYZ[0]}"
+              python3 core/tfapi/xml_to_csv.py -i ${XYZ[0]} -o trainer/annotations/train_labels.csv
             fi
 
             test_labels=trainer/annotations/test_labels.csv
@@ -73,7 +111,9 @@ do
               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
               echo "-- ThinkerFarm Genereting $test_labels Please Wait... --"
               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-              python3 core/tfapi/xml_to_csv.py -i trainer/annotations/test_images -o trainer/annotations/test_labels.csv
+              IFS=$'\r\n' GLOBIGNORE='*' command eval  'XYZ=($(cat core/tfapi/test_image_path))'
+              echo "${XYZ[0]}"
+              python3 core/tfapi/xml_to_csv.py -i ${XYZ[0]} -o trainer/annotations/test_labels.csv
             fi
             ;;
         "Generate TFRecords")
@@ -87,7 +127,9 @@ do
               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
               echo "-- ThinkerFarm Genereting $train_record Please Wait... --"
               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-              python3 core/tfapi/generate_tfrecord.py --label_map=trainer/annotations/label_map.pbtxt --csv_input=trainer/annotations/train_labels.csv --output_path=trainer/annotations/train.record --img_path=trainer/annotations/train_images
+              IFS=$'\r\n' GLOBIGNORE='*' command eval  'XYZ=($(cat core/tfapi/train_image_path))'
+              echo "${XYZ[0]}"
+              python3 core/tfapi/generate_tfrecord.py --label_map=trainer/annotations/label_map.pbtxt --csv_input=trainer/annotations/train_labels.csv --output_path=trainer/annotations/train.record --img_path=${XYZ[0]}
             fi
 
             test_record=trainer/annotations/test.record
@@ -100,14 +142,16 @@ do
               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
               echo "-- ThinkerFarm Genereting $train_record Please Wait... --"
               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-              python3 core/tfapi/generate_tfrecord.py --label_map=trainer/annotations/label_map.pbtxt --csv_input=trainer/annotations/test_labels.csv --output_path=trainer/annotations/test.record --img_path=trainer/annotations/test_images
+              IFS=$'\r\n' GLOBIGNORE='*' command eval  'XYZ=($(cat core/tfapi/test_image_path))'
+              echo "${XYZ[0]}"
+              python3 core/tfapi/generate_tfrecord.py --label_map=trainer/annotations/label_map.pbtxt --csv_input=trainer/annotations/test_labels.csv --output_path=trainer/annotations/test.record --img_path=${XYZ[0]}
             fi
             ;;
         "Start Training")
             echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             echo "-- Starting training session --"
             echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            python3 core/tfapi/train.py --logtostderr --train_dir=trainer/trained_check_points --pipeline_config_path=trainer/pre_trained_mobilenet/ssd_mobilenet_v2_quantized_300x300_coco.config
+            python3 core/tfapi/train.py --logtostderr --train_dir=trainer/trained_check_points --pipeline_config_path=trainer/pre_trained_mobilenet/model.config
 
             ;;
         "Convert Model to Tflite")
@@ -115,7 +159,7 @@ do
             IFS=$'\r\n' GLOBIGNORE='*' command eval  'XYZ=($(cat trainer/trained_check_points/checkpoint))'
             echo "${XYZ[0]}"
             temp_dic=${XYZ[0]}
-            temp_expr=${temp_dic::-1}
+            temp_expr=${temp_dic%?}
             temp_expr=${temp_expr:24}
 
             echo $temp_expr
@@ -123,7 +167,7 @@ do
             rm trainer/converted_model_tflite/*
 
             python3  core/tfapi/export_tflite_ssd_graph.py \
-            --pipeline_config_path=trainer/pre_trained_mobilenet/ssd_mobilenet_v2_quantized_300x300_coco.config \
+            --pipeline_config_path=trainer/pre_trained_mobilenet/model.config \
             --trained_checkpoint_prefix=trainer/trained_check_points/$temp_expr  \
             --output_directory=trainer/converted_model_tflite \
             --add_postprocessing_op=true
@@ -148,6 +192,30 @@ do
             echo " please use retrained_graph.tflite file "
             echo " in trainer/converted_model_tflit folder"
             echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            ;;
+        "Change Train Images Path")
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "-- Change Train Images Path --"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            read -p "Enter new path for your training images : " imagepath
+            rm core/tfapi/train_image_path
+            echo "${imagepath}" > core/tfapi/train_image_path
+            IFS=$'\r\n' GLOBIGNORE='*' command eval  'XYZ=($(cat core/tfapi/train_image_path))'
+            echo "new training image path updated : ${XYZ[0]}"
+
+
+            ;;
+        "Change Test Images Path")
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "-- Change Test Images Path --"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            read -p "Enter new path for your training images : " imagepath
+            rm core/tfapi/test_image_path
+            echo "${imagepath}" > core/tfapi/test_image_path
+            IFS=$'\r\n' GLOBIGNORE='*' command eval  'XYZ=($(cat core/tfapi/test_image_path))'
+            echo "new test image path updated : ${XYZ[0]}"
+
+
             ;;
         "Quit")
             break

@@ -22,7 +22,7 @@ import tensorflow as tf
 import sys
 from pathlib import Path
 import json
-
+import fileinput
 
 
 from PIL import Image
@@ -99,9 +99,16 @@ def split(df, group):
 
 def create_tf_example(group, path):
 
+    nameoffile = '{}'.format(group.filename)
+
+    if ".jpg" in nameoffile:
+        nameoffile = '{}'.format(group.filename)
+    else:
+        print("found missing file extention added in your label csv file added .jpg")
+        nameoffile = '{}.jpg'.format(group.filename)
 
 
-    with tf.gfile.GFile(os.path.join(path, '{}'.format(group.filename)), 'rb') as fid:
+    with tf.gfile.GFile(os.path.join(path, nameoffile), 'rb') as fid:
         encoded_jpg = fid.read()
     encoded_jpg_io = io.BytesIO(encoded_jpg)
     image = Image.open(encoded_jpg_io)
@@ -121,23 +128,31 @@ def create_tf_example(group, path):
     for index, row in group.object.iterrows():
         if row['xmin'] <=1:
             real_xmin = row['xmin'] * width
+            print("found xmin lower than 1 recalculated: ",real_xmin)
         else:
             real_xmin = row['xmin']
+            print("found xmin normal")
 
         if row['xmax'] <=1:
             real_xmax = row['xmax'] * width
+            print("found xmax lower than 1 recalculated: ",real_xmax)
         else:
             real_xmax = row['xmax']
+            print("found xmax normal")
 
         if row['ymin'] <=1:
             real_ymin = row['ymin'] * height
+            print("found ymin lower than 1 recalculated: ",real_ymin)
         else:
             real_ymin = row['ymin']
+            print("found ymin normal")
 
         if row['ymax'] <=1:
             real_ymax = row['ymax'] * height
+            print("found ymax lower than 1 recalculated: ",real_ymax)
         else:
             real_ymax = row['ymax']
+            print("found ymax normal")
 
 
         #0.46	471.04	0.50125	513.28	0.883677	602.667714	0.913696	623.140672
@@ -152,7 +167,7 @@ def create_tf_example(group, path):
         classes.append(class_text_to_int(row['class']))
         filenameinrow = row['filename']
 
-        print("ThinkerFarm : Genereting TensorFlow record for {}.jpg".format(filenameinrow))
+        print("ThinkerFarm : Genereting TensorFlow record for {}".format(filenameinrow))
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
         'image/height': dataset_util.int64_feature(height),
@@ -173,15 +188,27 @@ def create_tf_example(group, path):
 
 def main(_):
 
+    label_map_path  = FLAGS.label_map
+    label_map = load_labelmap(label_map_path)
+
+    filepath = "trainer/pre_trained_mobilenet/model.config"
+    found_line = ""
+    with open(filepath) as fp:
+        line = fp.readline()
+        cnt = 1
+        while line:
+
+            if cnt == 9:
+                found_line = "{}".format(line.strip())
+            line = fp.readline()
+            cnt += 1
 
 
 
 
-
-
-
-
-
+    with fileinput.FileInput("trainer/pre_trained_mobilenet/model.config", inplace=True, backup='.bak') as file:
+        for line in file:
+            print(line.replace("{}".format(found_line), "num_classes: {}".format(len(label_map.item))), end='')
 
 
 
@@ -196,8 +223,25 @@ def main(_):
 
 
     for group in grouped:
-        tf_example = create_tf_example(group, path)
-        writer.write(tf_example.SerializeToString())
+        nameoffile = '{}'.format(group.filename)
+
+        if ".jpg" in nameoffile:
+            nameoffile = '{}'.format(group.filename)
+        else:
+            print("found missing file extention added in your label csv file added .jpg")
+            nameoffile = '{}.jpg'.format(group.filename)
+
+        configpath = '%s/%s'%(path,nameoffile)
+
+
+        config = Path(configpath)
+        print("config : ",config)
+
+        if config.is_file():
+            tf_example = create_tf_example(group, path)
+            writer.write(tf_example.SerializeToString())
+        else:
+            print("file does not exist")
 
 
     writer.close()

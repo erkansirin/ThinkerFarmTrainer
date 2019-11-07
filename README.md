@@ -5,7 +5,7 @@
 
 ## Introduction  
 
-ThinkerFarmTrainer is a toolset for training Deep Learning Machine Learning models. Originally i made this toolset for myself in order to ease custom object detectin model training process so i'm sharing here and hope you will find useful.
+ThinkerFarmTrainer is a toolset for training Deep Learning Machine Learning models. Originally i made this toolset for myself in order to ease custom object detection model training process so i'm sharing here and hope you will find useful. I use transfer learning method on ssd mobilenet v2 quantized 300x300 coco. Model performance is quite good for variety of mobile and edge projects.
 
 ## Features    
 
@@ -18,15 +18,18 @@ ThinkerFarmTrainer is a toolset for training Deep Learning Machine Learning mode
 ## Usage and Installation  
 I will try to explain whole training process step by step and as brief as possible.
 
-### Clone repo
-```
-$ git clone https://github.com/erkansirin/ThinkerFarmTrainer.git
+### Need to Knows  
+In this repo in sake of testing i put together Mobilephone detection files "label_map.pbtxt train_labels.csv test_labels.csv and train_images test_images" gathered from OpenImage dataset V5 so after Installation you can immediately generate tfrecord using "4. Generate TFRecords" menu and then start training for Mobilephone detection model. Whenever you feel enough use main menu to convert last check point to TFLite model file and test your newly trained model by using [ThinkerFarm](https://github.com/erkansirin/ThinkerFarm) mobile framework (iOS only)  
 
-$ cd ThinkerFarmTrainer
-
-$ bash ./run.sh
+### Clone repository  
 ```
-### After initialize run.sh script you land following menu :
+$ git clone https://github.com/erkansirin/ThinkerFarmTrainer.git  
+
+$ cd ThinkerFarmTrainer  
+
+$ bash ./run.sh  
+```
+### After initialize run.sh script you will land following menu :  
 ```
 ~~~~~~~~~~~~~~~~~~~~~
  M A I N - M E N U"
@@ -37,12 +40,19 @@ $ bash ./run.sh
 4. Generate TFRecords
 5. Start Training
 6. Convert Model to TFLite
-7. Quit
+7. Change Train Images Path
+8. Change Test Images Path
+9. Change Test Images Path
+10. Quit
 ~~~~~~~~~~~~~~~~~~~~~
 ```
 ### 1. Install Dependencies  
 This will set you up and install all required dependencies. I tested installation on Ubuntu 18.04.3 LTS and Mac OS.  
 
 ### 2. Clean Training Data  
+This option will dele train and test record file along with check points and TFLite converted model files  
+
+### 3. Generate train and test labels csv  
+
 
 ## [Licence](https://github.com/erkansirin/ThinkerFarmTrainer/blob/master/LICENSE)  
