@@ -2,16 +2,16 @@
 # Bash Menu Script Example
 echo "######## ThinkerFarm Trainer ########"
 PS3='Select an option: '
-options=("Install" "Clean Traning Data" "Generate train and test labels csv" "Generate TFRecords" "Start Training" "Convert Model to Tflite" "Quit")
+options=("Install" "Clean Training Data" "Generate train and test labels csv" "Generate TFRecords" "Start Training" "Convert Model to Tflite" "Quit")
 echo "~~~~~~~~~~~~~~~~~~~~~"
 echo " M A I N - M E N U"
 echo "~~~~~~~~~~~~~~~~~~~~~"
-echo "1. Install Dependecies"
-echo "2. Clean Traning Data"
+echo "1. Install Dependencies"
+echo "2. Clean Training Data"
 echo "3. Generate train and test labels csv"
 echo "4. Generate TFRecords"
 echo "5. Start Training"
-echo "6. Convert Model to Tflite"
+echo "6. Convert Model to TFLite"
 echo "7. Quit"
 echo "~~~~~~~~~~~~~~~~~~~~~"
 select opt in "${options[@]}"
@@ -22,7 +22,7 @@ do
             echo "Installing dependencies"
             echo "~~~~~~~~~~~~~~~~~~~~~~~"
             ;;
-        "Clean Traning Data")
+        "Clean Training Data")
             echo "~~~~~~~~~~~~~~~~~~~~~"
             echo "Cleaning Traning Data"
             echo "~~~~~~~~~~~~~~~~~~~~~"
