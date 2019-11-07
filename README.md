@@ -67,9 +67,8 @@ This tool will start training by using tfrecord file generated with previous too
 ### 7. Convert Model to TFLite  
 Training periodically record training summary into check point file. It's actually your model file and this tool automatically generate TFLite model from latest check point file.   
 
-### 8. Change Train Images Path  
-### 9. Change Test Images Path   
-Sometimes you may need to change your image paths this tool will change all image path location in entire project.
+### 8. Change Train Images Path & 9. Change Test Images Path   
+Sometimes you may need to change your image paths this tool will change all image path location in entire project.  
 
 ### 10. Quit   
 
