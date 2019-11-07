@@ -5,7 +5,7 @@
 
 ## Introduction  
 
-ThinkerFarmTrainer is a toolset for training ssd object detection models. Originally i made this toolset for myself in order to ease custom object detection model training process so i'm sharing here and hope you will find useful. I use transfer learning method on ssd mobilenet v2 quantized 300x300 coco. Model performance is quite good for variety of mobile and edge projects.
+ThinkerFarmTrainer is a toolset for training ssd object detection models. Originally i made this toolset for myself aiming to ease my custom object detection model training process so i'm sharing here and hope you will find useful. I use transfer learning method on ssd mobilenet v2 quantized 300x300 coco. Model performance is quite good for variety of mobile and edge projects.
 
 ## Features    
 
