@@ -29,6 +29,12 @@ do
 
             if [[ "$unamestr" == 'Darwin' ]]; then
               echo $unamestr
+              brew install python3-dev
+              brew install python3-pip
+              pip3 install pandas
+              pip3 install tensorflow==1.14
+              pip3 install matplotlib
+
               git clone https://github.com/tzutalin/labelImg.git
               cd labelImg
               pip3 install pyqt5 lxml # Install qt and lxml by pip
@@ -40,6 +46,11 @@ do
 
             elif [[ "$unamestr" == 'Linux' ]]; then
               echo $unamestr
+              sudo apt install python3-pip
+              pip3 install pandas
+              pip3 install tensorflow==1.14
+              pip3 install matplotlib
+
               git clone https://github.com/tzutalin/labelImg.git
               cd labelImg
               sudo apt-get install pyqt5-dev-tools
