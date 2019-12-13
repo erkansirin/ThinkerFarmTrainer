@@ -47,7 +47,8 @@ $ bash ./run.sh
 7. Convert Model to TFLite
 8. Change Train Images Path
 9. Change Test Images Path
-10. Quit
+10. Open Tensorboard
+11. Quit
 ~~~~~~~~~~~~~~~~~~~~~
 ```
 ### 1. Install Dependencies  
@@ -74,7 +75,10 @@ Training periodically record training summary into check point file. It's actual
 ### 8. Change Train Images Path & 9. Change Test Images Path   
 Sometimes you may need to change your image paths this tool will change all image path location in entire project.  
 
-### 10. Quit   
+### 11. Open Tensorboard  
+Opens tensorboard to investigate your progress
+
+### 11. Quit   
 ...
 
 
