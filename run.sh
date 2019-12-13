@@ -2,7 +2,7 @@
 # Author Erkan Sirin erkan@erkansirin.com
 echo "######## ThinkerFarm Trainer ########"
 PS3='Select an option: '
-options=("Install" "Clean Training Data" "Run LabelImg by Tzutalin and Create bounding boxes" "Generate train and test labels csv" "Generate TFRecords" "Start Training" "Convert Model to Tflite" "Change Train Images Path" "Change Test Images Path" "Quit")
+options=("Install" "Clean Training Data" "Run LabelImg by Tzutalin and Create bounding boxes" "Generate train and test labels csv" "Generate TFRecords" "Start Training" "Convert Model to Tflite" "Change Train Images Path" "Change Test Images Path" "Open Tensorboard" "Quit")
 echo "~~~~~~~~~~~~~~~~~~~~~"
 echo " M A I N - M E N U"
 echo "~~~~~~~~~~~~~~~~~~~~~"
@@ -15,7 +15,8 @@ echo "6. Start Training"
 echo "7. Convert Model to TFLite"
 echo "8. Change Train Images Path"
 echo "9. Change Test Images Path"
-echo "10. Quit"
+echo "10. Open Tensorboard"
+echo "11. Quit"
 echo "~~~~~~~~~~~~~~~~~~~~~"
 select opt in "${options[@]}"
 do
@@ -142,21 +143,6 @@ do
               echo "${XYZ[0]}"
               python3 core/tfapi/generate_tfrecord.py --label_map=trainer/annotations/label_map.pbtxt --csv_input=trainer/annotations/train_labels.csv --output_path=trainer/annotations/train.record --img_path=${XYZ[0]}
             fi
-
-            test_record=trainer/annotations/test.record
-
-            if [ -f $test_record ]; then
-              echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-              echo "-- ThinkerFarm found $train_record --"
-              echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            else
-              echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-              echo "-- ThinkerFarm Genereting $train_record Please Wait... --"
-              echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-              IFS=$'\r\n' GLOBIGNORE='*' command eval  'XYZ=($(cat core/tfapi/test_image_path))'
-              echo "${XYZ[0]}"
-              python3 core/tfapi/generate_tfrecord.py --label_map=trainer/annotations/label_map.pbtxt --csv_input=trainer/annotations/test_labels.csv --output_path=trainer/annotations/test.record --img_path=${XYZ[0]}
-            fi
             ;;
         "Start Training")
             echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -184,11 +170,11 @@ do
             --add_postprocessing_op=true
 
             tflite_convert \
-                --output_file=trainer/converted_model_tflite/retrained_graph.tflite \
+                --output_file=trainer/converted_model_tflite/human_detection_thinkerfarm.tflite \
                 --graph_def_file=trainer/converted_model_tflite/tflite_graph.pb \
                 --input_arrays=normalized_input_image_tensor \
                 --output_arrays="TFLite_Detection_PostProcess","TFLite_Detection_PostProcess:1","TFLite_Detection_PostProcess:2","TFLite_Detection_PostProcess:3" \
-                --inference_type=FLOAT \
+                --inference_type=QUANTIZED_UINT8 \
                 --inference_input_type=QUANTIZED_UINT8 \
                 --input_shapes=1,300,300,3 \
                 --mean_values=128 \
@@ -226,6 +212,13 @@ do
             IFS=$'\r\n' GLOBIGNORE='*' command eval  'XYZ=($(cat core/tfapi/test_image_path))'
             echo "new test image path updated : ${XYZ[0]}"
 
+
+            ;;
+        "Open Tensorboard")
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "-- Opening Tensorboard --"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            tensorboard --logdir=trainer/trained_check_points/
 
             ;;
         "Quit")
