@@ -33,7 +33,7 @@ do
               brew install python3-dev
               brew install python3-pip
               pip3 install pandas
-              pip3 install tensorflow==1.14
+              pip3 install tensorflow-gpu==1.14
               pip3 install matplotlib
 
               git clone https://github.com/tzutalin/labelImg.git
@@ -47,9 +47,11 @@ do
 
             elif [[ "$unamestr" == 'Linux' ]]; then
               echo $unamestr
+              sudp apt-get update
               sudo apt install python3-pip
+              pip3 install pillow
               pip3 install pandas
-              pip3 install tensorflow==1.14
+              pip3 install tensorflow-gpu
               pip3 install matplotlib
 
               git clone https://github.com/tzutalin/labelImg.git
