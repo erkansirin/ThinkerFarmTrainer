@@ -109,10 +109,34 @@ def create_tf_example(group, path):
 
 
     with tf.gfile.GFile(os.path.join(path, nameoffile), 'rb') as fid:
+        tmp_encoded_jpg = fid.read()
+
+    scaled_width = 300
+    scled_height = 300
+
+
+    temp_encoded_jpg_io = io.BytesIO(tmp_encoded_jpg)
+    tmp_image = Image.open(temp_encoded_jpg_io)
+    width, height = tmp_image.size
+    scaled_image = tmp_image.resize((scaled_width,scled_height))
+    outfile = "{}".format(nameoffile)
+    scaled_image.save(outfile, "JPEG")
+
+    with tf.gfile.GFile(outfile, 'rb') as fid:
         encoded_jpg = fid.read()
+
+
     encoded_jpg_io = io.BytesIO(encoded_jpg)
     image = Image.open(encoded_jpg_io)
-    width, height = image.size
+
+
+
+
+
+    #newMinx   = ((   OldMinx   ) * NewWidth  / OldWidth );
+    #newMax   = ((   OldMax   ) * NewWidth  / OldWidth );
+    #newMaxy    = ((   oldMaxy    ) * NewHeight / OldHeight);
+    #NewMiny   = ((   oldMiny  ) * NewHeight / OldHeight);
 
     filename = group.filename.encode('utf8')
 
@@ -155,23 +179,36 @@ def create_tf_example(group, path):
             print("found ymax normal")
 
 
+        scaled_xmin = ((real_xmin) * scaled_width / width)
+        scaled_xmax = ((real_xmax) * scaled_width / width)
+        scaled_ymin = ((real_ymin) * scled_height / height)
+        scaled_ymax = ((real_ymax) * scled_height / height)
+
+        print("scaled_xmin: ",scaled_xmin)
+        print("scaled_xmax: ",scaled_xmax)
+        print("scaled_ymin: ",scaled_ymin)
+        print("scaled_ymax: ",scaled_ymax)
+
+
         #0.46	471.04	0.50125	513.28	0.883677	602.667714	0.913696	623.140672
 
 
 
-        xmins.append(real_xmin / width)
-        xmaxs.append(real_xmax / width)
-        ymins.append(real_ymin / height)
-        ymaxs.append(real_ymax / height)
+
+        xmins.append(scaled_xmin / scaled_width)
+        xmaxs.append(scaled_xmax / scaled_width)
+        ymins.append(scaled_ymin / scled_height)
+        ymaxs.append(scaled_ymax / scled_height)
         classes_text.append(row['class'].encode('utf8'))
         classes.append(class_text_to_int(row['class']))
         filenameinrow = row['filename']
 
         print("ThinkerFarm : Genereting TensorFlow record for {}".format(filenameinrow))
 
+
     tf_example = tf.train.Example(features=tf.train.Features(feature={
-        'image/height': dataset_util.int64_feature(height),
-        'image/width': dataset_util.int64_feature(width),
+        'image/height': dataset_util.int64_feature(scled_height),
+        'image/width': dataset_util.int64_feature(scaled_width),
         'image/filename': dataset_util.bytes_feature(filename),
         'image/source_id': dataset_util.bytes_feature(filename),
         'image/encoded': dataset_util.bytes_feature(encoded_jpg),
@@ -183,6 +220,8 @@ def create_tf_example(group, path):
         'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
         'image/object/class/label': dataset_util.int64_list_feature(classes),
     }))
+    os.remove(outfile)
+    print("ThinkerFarm : Removed scaled file {}".format(outfile))
     return tf_example
 
 
