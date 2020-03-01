@@ -30,15 +30,16 @@ do
 
             if [[ "$unamestr" == 'Darwin' ]]; then
               echo $unamestr
+              ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
               brew install python3-dev
               brew install python3-pip
-              pip3 install pandas
-              pip3 install tensorflow-gpu==1.14
-              pip3 install matplotlib
+              sudo pip3 install pandas
+              sudo pip3 install tensorflow-cpu==1.14
+              sudo pip3 install matplotlib
 
               git clone https://github.com/tzutalin/labelImg.git
               cd labelImg
-              pip3 install pyqt5 lxml # Install qt and lxml by pip
+              sudo pip3 install pyqt5 lxml # Install qt and lxml by pip
               make qt5py3
               cd ..
 
