@@ -34,7 +34,7 @@ do
               brew install python3-dev
               brew install python3-pip
               sudo pip3 install pandas
-              sudo pip3 install tensorflow-cpu==1.14
+              sudo pip3 install tensorflow-cpu==1.15.0
               sudo pip3 install matplotlib
 
               git clone https://github.com/tzutalin/labelImg.git
